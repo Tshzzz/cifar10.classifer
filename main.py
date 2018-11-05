@@ -16,16 +16,52 @@ from tensorboardX import SummaryWriter
 import os
 import tqdm
 
+import argparse
 
 #import torchvision.models as models
 
 
 from models.mobilenet import MobileNet
+from models.resnet import ResNet50
+from models.vgg import vgg16
+from models.mobilenet_v2 import MobileNet_v2
+from models.shufflenet import shuffe_g3
 
-logger = SummaryWriter()
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--epochs', type=int, default=30)
+    parser.add_argument('--model', type=str, default='shuffe_g3')
+    parser.add_argument('--output', type=str, default='saved_/')
+    parser.add_argument('--batch_size', type=int, default=40)
+    parser.add_argument('--seed', type=int, default=1111, help='random seed')
+    args = parser.parse_args()
+    return args
+
+args = parse_args()
+
+def load_pretrain(pred_dict,model):
+    
+    #pred_dict = {k: v for k , v in pred_dict.items() if k in model_dict}
+    #pred_dict.pop('fc.weight')
+    #pred_dict.pop('fc.bias')
+    #model_dict.update(pred_dict)
+    #pred_dict = torch.load('/home/tshzzz/.torch/models/vgg16-397923af.pth')
+    
+    model_dict = model.state_dict()
+
+    for (k,v),(k1,v1) in zip(pred_dict.items(),model_dict.items()):
+        if v.shape == v1.shape:
+            model_dict[k1] = v
+            #print(k,k1)
+    
+    #dd
+    return model_dict
+
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 CHANNEL_MEAN = [0.4914, 0.4822, 0.4465]
@@ -47,11 +83,11 @@ eval_transforms = transforms.Compose([transforms.Resize([224,224]),
 
 trainsets = torchvision.datasets.CIFAR10('./datasets/',train=True,transform=train_transforms)
 
-trainloader = torch.utils.data.DataLoader(trainsets,batch_size = 64,shuffle = True)
+trainloader = torch.utils.data.DataLoader(trainsets,batch_size = args.batch_size,shuffle = True)
 
 evalsets = torchvision.datasets.CIFAR10('./datasets/',train=False,transform=eval_transforms)
 
-evalloader = torch.utils.data.DataLoader(evalsets,batch_size = 16)
+evalloader = torch.utils.data.DataLoader(evalsets,batch_size = 5)
 
 
 '''
@@ -60,84 +96,102 @@ num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, 10)
 '''
 
-model = MobileNet(10)
-model = model.to(device)
+logger = SummaryWriter()
 
-out_dir = 'saved_'
+def mkdir(out_dir):
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
 
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
-
-
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-criterion = nn.CrossEntropyLoss()
-
-epochs = 30
-
-step = 0
-best_acc = 0
-
-pred_train_model = None
-
-
-if pred_train_model is not None:
-    model.load_state_dict(torch.load(pred_train_model))
-
-
-
-
-for epoch in range(epochs):
 
     
+def eval_train(model,loader):
+    model.eval()    
     correct = 0.0
-    total_loss = 0
-    
-    for img,label in tqdm.tqdm(trainloader):
-        optimizer.zero_grad()
-        label = label.to(device)
-        img = img.to(device)
-        pred = model(img)
-        
-        _,pred_idx = torch.max(pred,1)
-        correct += torch.sum(pred_idx == label)
-        
-        loss = criterion(pred,label)
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item() * img.size(0)
-        step += 1
-        
-    total_loss /= len(trainloader.dataset)
-    logger.add_scalar('train loss', total_loss, step)
-    train_acc = float(correct) / len(trainloader.dataset)        
-    logger.add_scalar('train score', train_acc, step)
-
-    print('train_loss: {}  train_score: {} '.format(total_loss,train_acc))
-
-
-    model.eval()
-    correct = 0.0
-    for img,label in evalloader:
-        
+    for img,label in loader:
+            
         img = img.to(device)
         pred = model(img)
         _,pred_idx = torch.max(pred,1)
         correct += torch.sum(pred_idx.cpu() == label)
-        
-    eval_acc = float(correct) / len(evalloader.dataset)
+            
+    eval_acc = float(correct) / len(loader.dataset)
+
     model.train()
-    logger.add_scalar('eval score', eval_acc, step)
+    
+    return eval_acc
+
+
+def train(model,optimizer,criterion,epochs,out_dir,trainloader,evalloader):
+
+    step = 0
+    best_acc = 0
+
+    for epoch in range(epochs):
+    
+        correct = 0.0
+        total_loss = 0
+        
+        for img,label in tqdm.tqdm(trainloader):
+            optimizer.zero_grad()
+            label = label.to(device)
+            img = img.to(device)
+            pred = model(img)
+            
+            _,pred_idx = torch.max(pred,1)
+            correct += torch.sum(pred_idx == label)
+            
+            loss = criterion(pred,label)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item() * img.size(0)
+            step += 1
+            
+        total_loss /= len(trainloader.dataset)
+        logger.add_scalar('train loss', total_loss, step)
+        train_acc = float(correct) / len(trainloader.dataset)        
+        logger.add_scalar('train score', train_acc, step)
+    
+        print('train_loss: {}  train_score: {} '.format(total_loss,train_acc))
+        
+        eval_acc = eval_train(model,evalloader)
+
+        logger.add_scalar('eval score', eval_acc, step)
+        
+    
+        if eval_acc > best_acc:
+            best_acc = eval_acc
+            model_path = os.path.join(out_dir, 'model.pth')
+            torch.save(model.state_dict(), model_path)
+                
+        print('eval_score: {} best_score:{}'.format(eval_acc,best_acc))      
+
+
+if __name__ == '__main__':
+
+    model = locals()[args.model]()# vgg16()
+    model = model.to(device)
     
 
-    if eval_acc > best_acc:
-        best_acc = eval_acc
-        model_path = os.path.join(out_dir, 'model.pth')
-        torch.save(model.state_dict(), model_path)
-            
-    print('eval_score: {} best_score:{}'.format(eval_acc,best_acc))      
+    #pred_dict = torch.load('/home/tshzzz/.torch/models/vgg16_bn-6c64b313.pth')
+    #model_dict = load_pretrain(pred_dict,model)
+    #model.load_state_dict(model_dict)
+    
+    #logger(comment=args.model)
+    #input_ = torch.randn(3,3,224,224)
+    #logger.add_graph(model,(input_,))    
+        
+    
+    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    criterion = nn.CrossEntropyLoss()
+    epochs = 60  
+    
+    out_dir = args.output+args.model
+    mkdir(out_dir)
+    
+    train(model,optimizer,criterion,epochs,out_dir,trainloader,evalloader)
+    
 
-
-
+    
     
     
     
