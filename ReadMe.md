@@ -10,6 +10,7 @@ VGG16相比AlexNet的一个改进是采用连续的几个3x3的卷积核代替Al
 
 VGG网络具体结构图如下：
 ![VGG网络结构图](https://d2mxuefqeaa7sj.cloudfront.net/s_8C760A111A4204FB24FFC30E04E069BD755C4EEFD62ACBA4B54BBA2A78E13E8C_1491022251600_VGGNet.png)
+
 # ResNet
 [ResNet论文链接](https://arxiv.org/pdf/1512.03385.pdf)
 
@@ -27,6 +28,7 @@ ResNet提供两种连接的方式：
 
 不同的resnet网络具体结构图：
 ![enter image description here](https://img-blog.csdn.net/20180114205444652?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGFucmFuMg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
 # MobileNet
 [MobileNett论文链接](https://arxiv.org/abs/1704.04861)
 
@@ -42,3 +44,25 @@ MobileNets模型基于深度可分解的卷积，它可以将标准卷积分解�
 具体的mobilenet结构如下：
 
 ![enter image description here](https://img-blog.csdn.net/20170425202723997?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+# MobileNet_V2
+[MobileNet v2论文链接](https://arxiv.org/abs/1801.04381)
+MobileNet v2主要的改进在使用了残差网络结构。同时证明了Relu层featmap较少时，由于Relu会丢弃小于0的值，会导致大量信息丢失。因此在MobileNet V2中，执行降维的卷积层后面不会接类似ReLU这样的非线性激活层，也就是linear bottleneck的含义。 
+
+![enter image description here](https://img-blog.csdn.net/20180123092544577?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMTk5NTcxOQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+特别的，针对stride=1 和stride=2，在block上有稍微不同，主要是为了与shortcut的维度匹配，因此，stride=2时，不采用shortcut。
+
+
+# ShuffleNet
+[ShuffleNet论文链接](https://arxiv.org/pdf/1707.01083.pdf)
+ShuffleNet 是旷世科技推出的轻量化网络。在小型网络中，昂贵的逐点卷积造成有限的通道之间充满约束，这会显著的损失精度。为了解决这个问题，一个直接的方法是应用通道稀疏连接，例如组卷积(group convolutions)。通过确保每个卷积操作仅在对应的输入通道组上，组卷积可以显著的降低计算损失。然而，如果多个组卷积堆叠在一起，会有一个副作用： 某个通道输出仅从一小部分输入通道中导出，如下图(a)所示，这样的属性降低了通道组之间的信息流通，降低了信息表示能力。如果我们允许组卷积能够得到不同组的输入数据，即下图(b)所示效果，那么输入和输出通道会是全关联的。具体来说，对于上一层输出的通道，我们可做一个混洗(Shuffle)操作，如下图(c)所示，再分成几个组，feed到下一层。
+
+![enter image description here](http://owv7la1di.bkt.clouddn.com/blog/180129/CfFEGdgJlI.png)
+
+对于shuffle操作可以像下图所示的进行实现：
+![enter image description here](http://owv7la1di.bkt.clouddn.com/blog/180129/lj9IK1cm9H.png)
+
+最后shuffleNet也借鉴了残差神经网络，有如下三种连接方式：
+
+![enter image description here](http://owv7la1di.bkt.clouddn.com/blog/180129/cHcCCLaiHE.png)
