@@ -24,10 +24,10 @@ class BasicBlock(nn.Module):
 
 
         self.pass_by = nn.Sequential()
-        if stride != 1 or self.expansion*in_planes != planes:
+        if stride != 1 or in_planes != planes*self.expansion:
             self.pass_by = nn.Sequential(
-                        nn.Conv2d(in_planes,planes,kernel_size=1,stride=stride,bias=False),
-                        nn.BatchNorm2d(planes)
+                        nn.Conv2d(in_planes,planes*self.expansion,kernel_size=1,stride=stride,bias=False),
+                        nn.BatchNorm2d(planes*self.expansion)
                     )
 
     def forward(self,x):
@@ -61,7 +61,7 @@ class BottlenBlock(nn.Module):
         
         self.pass_by = nn.Sequential()
         
-        if stride != 1 or in_planes*self.expansion != planes:
+        if stride != 1 or in_planes != planes*self.expansion:
             self.pass_by = nn.Sequential(
                         nn.Conv2d(in_planes,planes*self.expansion,kernel_size=1,stride=stride,bias=False),
                         nn.BatchNorm2d(planes*self.expansion)
@@ -139,17 +139,32 @@ class ResNet(nn.Module):
         return x
 
 
-def ResNet18():
-    return ResNet(BasicBlock, [2,2,2,2])
+def ResNet18(num_class = 10):
+    return ResNet(BasicBlock, [2,2,2,2], num_class)
 
-def ResNet50():
-    model = ResNet(BottlenBlock, [3, 4, 6, 3])
+def ResNet50(num_class = 10):
+    model = ResNet(BottlenBlock, [3, 4, 6, 3], num_class)
     return model
 
     
 def test():
-    net = ResNet50()
+    import torchvision.models as models
+    model = models.resnet50()
+    count = 0
+    for m in model.modules():
+        if isinstance(m, nn.Conv2d):
+            count += 1
+    print(count)    
+    print(model)
     
+    
+    net = ResNet50()
+    count = 0
+    for m in net.modules():
+        if isinstance(m, nn.Conv2d):
+            count += 1
+    print(count)
+                
     print(net)
     y = net(torch.randn(1,3,224,224))
     print(y.size())
