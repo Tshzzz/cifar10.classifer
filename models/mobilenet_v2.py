@@ -79,9 +79,11 @@ class MobileNet_v2(nn.Module):
         self.conv3 = nn.Conv2d(320,1280,kernel_size=1,stride=1,padding=0,bias=False)
 
 
-        self.pool = nn.AvgPool2d(7,stride=1)
-        self.fc = nn.Linear(1280,num_class)
-
+        #self.pool = nn.AvgPool2d(7,stride=1)
+        self.fc = nn.Sequential(
+                nn.Dropout(0.5),
+                nn.Linear(1280,num_class)
+                )
 
     def make_layers(self,in_planes):
         layers = []
@@ -103,8 +105,12 @@ class MobileNet_v2(nn.Module):
         out = self.bottlen(out)
         
         out = self.conv3(out)
-        out = self.pool(out)
-        out = out.view(-1,1280)
+        #out = self.pool(out)
+        out = out.mean(3).mean(2)
+        #print(out.shape)
+        
+        #out = self.pool(out)
+        #out = out.view(-1,1280)
         
         out = self.fc(out)    
         
@@ -125,6 +131,6 @@ def test():
     y = net(torch.randn(1,3,224,224))
     print(y.size())
 
-#test()
+test()
 
 

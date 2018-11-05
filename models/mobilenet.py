@@ -57,6 +57,7 @@ class MobileNet(nn.Module):
         
         self.pool = nn.AvgPool2d(7)
         self.classifer = nn.Sequential(
+                nn.Dropout(0.5),
                 nn.Linear(1024,num_class)
                 #nn.ReLU(),
                 #nn.Softmax(1000,num_class)

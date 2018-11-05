@@ -101,8 +101,11 @@ class ShuffleNet(nn.Module):
         
         self.pool2 = nn.AvgPool2d(7,stride=1)
         
-        self.fc = nn.Linear(cfg[-1],num_class)
-        
+        #self.fc = nn.Linear(cfg[-1],num_class)
+        self.fc = nn.Sequential(
+                nn.Dropout(0.5),
+                nn.Linear(cfg[-1],num_class)
+                )
         
     def make_layers(self,inplane,num_layer=2):
         layers = []
