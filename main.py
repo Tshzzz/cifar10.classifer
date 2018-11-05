@@ -32,6 +32,8 @@ CHANNEL_MEAN = [0.4914, 0.4822, 0.4465]
 CHANNEL_STD = [0.2023, 0.1994, 0.2010]
 train_transforms = transforms.Compose([transforms.Resize([256,256]),
                                       transforms.RandomCrop([224,224]),
+                                      transforms.RandomVerticalFlip(),
+                                      transforms.RandomHorizontalFlip(),
                                       transforms.ToTensor(),
                                       transforms.Normalize(CHANNEL_MEAN,
                                                            CHANNEL_STD)])
@@ -74,6 +76,15 @@ epochs = 30
 
 step = 0
 best_acc = 0
+
+pred_train_model = None
+
+
+if pred_train_model is not None:
+    model.load_state_dict(torch.load(pred_train_model))
+
+
+
 
 for epoch in range(epochs):
 
