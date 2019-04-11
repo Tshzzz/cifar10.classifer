@@ -29,7 +29,7 @@ def conv_bw(inplane,outplane,kernel_size = 3,stride=1):
 
 class MobileNet(nn.Module):
     
-    def __init__(self,num_class):
+    def __init__(self,num_class=10):
         super(MobileNet,self).__init__()
         
         layers = []
@@ -56,6 +56,7 @@ class MobileNet(nn.Module):
 
     def forward(self,x):
         out = self.feature(x)
+        out = out.mean(3).mean(2)
         out = out.view(-1,1024)
         out = self.classifer(out)
         return out

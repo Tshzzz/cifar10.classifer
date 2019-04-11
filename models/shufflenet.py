@@ -92,9 +92,9 @@ class ShuffleNet(nn.Module):
         return out
         
         
-def Shuffe_G3():
+def Shuffe_G3(num_class):
     cfg = [240,480,960]
-    return ShuffleNet(cfg,3)
+    return ShuffleNet(cfg,3,num_class)
     
     
     

@@ -19,8 +19,8 @@ I want to know in the same condition which CNN is the best.
 ## Experiment:
 Training Detail
 - training from scratch
-- epoch 50
-- init lr 0.1
+- epoch 100
+- init lr 0.01
 - cosine lr scheduler
 - single GTX 1080
 

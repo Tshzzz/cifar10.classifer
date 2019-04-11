@@ -52,14 +52,14 @@ class VGG(nn.Module):
         return out
         
 
-def VGG11():
-    return VGG(cfg['vgg11'])
+def VGG11(num_class):
+    return VGG(cfg['vgg11'],num_class)
 
-def VGG13():
-    return VGG(cfg['vgg13']) 
+def VGG13(num_class):
+    return VGG(cfg['vgg13'],num_class)
        
-def VGG16():
-    return VGG(cfg['vgg16'])     
+def VGG16(num_class):
+    return VGG(cfg['vgg16'],num_class)
     
 def test():
     import torchvision.models as models

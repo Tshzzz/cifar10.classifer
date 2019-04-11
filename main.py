@@ -20,11 +20,11 @@ from models import *
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--model', type=str, default='MobileNet_v2')
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--model', type=str, default='VGG16')
     parser.add_argument('--output', type=str, default='./saved_/')
     parser.add_argument('--batch_size', type=int, default=40)
-    parser.add_argument('--seed', type=int, default=1111, help='random seed')
+    parser.add_argument('--lr', type=float, default=1e-2, help='learning rate')
     args = parser.parse_args()
     return args
 
@@ -104,7 +104,7 @@ def train(model,
             optimizer.step()
             total_loss += loss.item() * img.size(0)
             step += 1
-            
+
         total_loss /= len(trainloader.dataset)
         logger.add_scalar('train loss', total_loss, step)
         train_acc = float(correct) / len(trainloader.dataset)        
@@ -118,16 +118,19 @@ def train(model,
         model_path = os.path.join(out_dir, 'model.pth')
         torch.save(model.state_dict(), model_path)
         logger.print_info(epoch)
-        scheduler(epoch)
+        scheduler.step(epoch)
 
 
 if __name__ == '__main__':
     print(device)
-    model = locals()[args.model]()
+    torch.backends.cudnn.benchmark = True
+    torch.cuda.manual_seed(100)
+
+    model = locals()[args.model](10)
     model = model.to(device)
 
     
-    optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
     criterion = nn.CrossEntropyLoss()
     epochs = args.epochs
     mkdir(args.output)

@@ -103,7 +103,7 @@ class MobileNet_v2(nn.Module):
     
 def test():
 
-    net = MobileNet_v2()
+    net = MobileNet_v2(10)
     count = 0
     for m in net.modules():
         if isinstance(m, nn.Conv2d):
