@@ -1,6 +1,6 @@
 ﻿# CNN Classifer In Cifar-10
 I try to do some classifer experiment in cifar-10.
-All the network train with the same parameter.
+All the network train with the same parameter,training from scratch.
 I want to know in the same condition which CNN is the best.
 
 
@@ -10,8 +10,8 @@ I want to know in the same condition which CNN is the best.
 - [x] [MobileNet](https://arxiv.org/abs/1704.04861)
 - [x] [ShuffleNet](https://arxiv.org/pdf/1707.01083.pdf)
 - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381)
+- [x] [ResNeXt](https://arxiv.org/abs/1611.05431)
 - [ ] [InceptionV3](https://arxiv.org/pdf/1512.00567.pdf)
-- [ ] [ResNeXt](https://arxiv.org/abs/1611.05431)
 - [ ] [ShuffleNetV2](https://arxiv.org/abs/1807.11164)
 - [ ] [SENet](https://arxiv.org/abs/1709.01507)
 
@@ -24,13 +24,14 @@ Training Detail
 - cosine lr scheduler
 - single GTX 1080
 
-| Model        |train time(min) | ACC         |
-| -------------|----------------| ----------- |
-| VGG16        | XXXXXXXXXXXXXX | X           |
-| ResNet50     | XXXXXXXXXXXXXX | X           |
-| MobileNet    | XXXXXXXXXXXXXX | X           |
-| MobileNetV2  | XXXXXXXXXXXXXX | X           |
-| ShuffleNet   | XXXXXXXXXXXXXX | X           |
+| Model            |train time(min) | ACC         |
+| -----------------|----------------| ----------- |
+| VGG16            | 74m 26s        | 91.55       |
+| ResNet50         | XXXXXXXXXXXXXX | X           |
+| MobileNet        | XXXXXXXXXXXXXX | X           |
+| MobileNetV2      | XXXXXXXXXXXXXX | X           |
+| ShuffleNet       | XXXXXXXXXXXXXX | X           |
+| ResNeXt50_32x4d  | XXXXXXXXXXXXXX | X           |
 
 
 ## Reference:

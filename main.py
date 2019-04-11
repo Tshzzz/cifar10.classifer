@@ -122,7 +122,7 @@ def train(model,
 
 
 if __name__ == '__main__':
-    print(device)
+    print(args.model)
     torch.backends.cudnn.benchmark = True
     torch.cuda.manual_seed(100)
 
