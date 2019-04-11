@@ -34,7 +34,7 @@ class MobileNet(nn.Module):
         
         layers = []
         
-        layers.append(conv_bw(3,32,3,2))
+        layers.append(conv_bw(3,32,3,1))
         
         layers.append(conv_dw(32,64,1))
         
@@ -55,12 +55,10 @@ class MobileNet(nn.Module):
         layers.append(conv_dw(512,1024,2))
         layers.append(conv_dw(1024,1024,1))
         
-        self.pool = nn.AvgPool2d(7)
+
         self.classifer = nn.Sequential(
                 nn.Dropout(0.5),
                 nn.Linear(1024,num_class)
-                #nn.ReLU(),
-                #nn.Softmax(1000,num_class)
                 )
                 
         self.feature = nn.Sequential(*layers)
@@ -70,23 +68,19 @@ class MobileNet(nn.Module):
     def forward(self,x):
         
         out = self.feature(x)
-        #print(out.shape)
-        out = self.pool(out)
-        #print(out.shape)
         out = out.view(-1,1024)
         out = self.classifer(out)
-        
-        
+
         return out
 
 
 def test():
     a = MobileNet(10)
     
-    y = a(torch.randn(1,3,224,224))
+    y = a(torch.randn(1,3,32,32))
     print(y.size())
     
     
-#test()
+if __name__ == "__main__":
 
-
+    test()

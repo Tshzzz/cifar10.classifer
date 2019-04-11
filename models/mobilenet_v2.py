@@ -9,9 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class BottlenBlock(nn.Module):
-    #expansion = 1
-    
-    
+
     def __init__(self,in_planes,out_planes,expansion,stride=1):
         super(BottlenBlock,self).__init__()
         
@@ -49,8 +47,6 @@ class BottlenBlock(nn.Module):
 
             out += self.pass_by(x)
 
-       
-        #print(x.shape,out.shape)
         return out
 
 
@@ -64,20 +60,18 @@ class MobileNet_v2(nn.Module):
                 [6,96,3,1],
                 [6,160,3,2],
                 [6,320,1,1]
-                
             ]
     
     
     def __init__(self,num_class=10):
         super(MobileNet_v2,self).__init__()
 
-        self.conv1 = nn.Conv2d(3,32,kernel_size=1,stride=2,padding=0,bias=False)
+        self.conv1 = nn.Conv2d(3,32,kernel_size=1,stride=1,padding=0,bias=False)
         self.bn1 = nn.BatchNorm2d(32)
 
         self.bottlen = self.make_layers(32)
 
         self.conv3 = nn.Conv2d(320,1280,kernel_size=1,stride=1,padding=0,bias=False)
-
 
         #self.pool = nn.AvgPool2d(7,stride=1)
         self.fc = nn.Sequential(
@@ -101,17 +95,9 @@ class MobileNet_v2(nn.Module):
     def forward(self,x):
         
         out = self.conv1(x)
-        
         out = self.bottlen(out)
-        
         out = self.conv3(out)
-        #out = self.pool(out)
         out = out.mean(3).mean(2)
-        #print(out.shape)
-        
-        #out = self.pool(out)
-        #out = out.view(-1,1280)
-        
         out = self.fc(out)    
         
         return out
@@ -128,9 +114,10 @@ def test():
     print(count)
                 
     print(net)
-    y = net(torch.randn(1,3,224,224))
+    y = net(torch.randn(1,3,32,32))
     print(y.size())
 
-test()
+if __name__ == "__main__":
+    test()
 
 

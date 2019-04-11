@@ -15,19 +15,12 @@ class ShuffleBlock(nn.Module):
     def __init__(self,groups):
         super(ShuffleBlock,self).__init__()
         self.groups = groups
-        
-        
-    
     def forward(self,x):
         '''
         [[1,2,3],[4,5,6]] -> [[1,4],[2,5],[3,6]] -> [[1,4,2],[5,3,6]]        
         '''
-
         g = self.groups
-        
         b,c,h,w = x.size()
-
-        
         return x.view(b,g,c//g,h,w).permute(0,2,1,3,4).contiguous().view(b,c,h,w)
 
 
@@ -37,7 +30,6 @@ class ShuffleBlock(nn.Module):
 
 class BottlenBlock(nn.Module):
 
-    
     def __init__(self,in_planes,out_planes,group,stride=1):
         super(BottlenBlock,self).__init__()
         
@@ -94,12 +86,12 @@ class ShuffleNet(nn.Module):
         self.cfg = cfg
         
         self.group = group
-        self.conv1 = nn.Conv2d(3,24,kernel_size=3,stride=2,padding=1)
+        self.conv1 = nn.Conv2d(3,24,kernel_size=3,stride=1,padding=1)
         self.pool1 = nn.MaxPool2d(kernel_size=3,stride=2)
         
         self.body = self.make_layers(24)
         
-        self.pool2 = nn.AvgPool2d(7,stride=1)
+        self.pool2 = nn.AvgPool2d(4,stride=1)
         
         #self.fc = nn.Linear(cfg[-1],num_class)
         self.fc = nn.Sequential(
@@ -122,8 +114,10 @@ class ShuffleNet(nn.Module):
     def forward(self,x):
         
         out = self.conv1(x)
-        out = self.pool1(out)
+        #out = self.pool1(out)
+        #print(out.shape)
         out = self.body(out)
+        #print(out.shape)
         out = self.pool2(out)
         out = out.view(-1,self.cfg[-1])
         out = self.fc(out)
@@ -131,7 +125,7 @@ class ShuffleNet(nn.Module):
         return out
         
         
-def shuffe_g3():
+def Shuffe_G3():
 
     cfg = [240,480,960]
     
@@ -142,21 +136,20 @@ def shuffe_g3():
         
 def test():
 
-    net = shuffe_g3()
+    net = Shuffe_G3()
     count = 0
     for m in net.modules():
         if isinstance(m, nn.Conv2d):
             count += 1
     print(count)
                 
-    print(net)
-    y = net(torch.randn(1,3,224,224))
+    #print(net)
+    y = net(torch.randn(1,3,32,32))
     print(y.size()) 
         
-#test()     
-        
-        
+if __name__ == "__main__":
 
+    test()
 
 
 
