@@ -14,7 +14,7 @@ import os
 import argparse
 from utils import txt_logger
 import torch.optim.lr_scheduler as lr_scheduler
-
+import time
 from models import *
 
 
@@ -88,10 +88,8 @@ def train(model,
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=(epochs // 9) + 1)
 
     for epoch in range(epochs):
-    
         correct = 0.0
         total_loss = 0
-        
         for img,label in trainloader:
             optimizer.zero_grad()
             label = label.to(device)
@@ -136,8 +134,11 @@ if __name__ == '__main__':
     out_dir = args.output+args.model
     mkdir(out_dir)
     logger = txt_logger(out_dir, 'training', 'log.txt')
+    start = time.time()
     train(model,optimizer,criterion,epochs,out_dir,logger,trainloader,evalloader)
-    
+    end = time.time()
+    time_elapsed = end - start
+    logger.logger.info('total time {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 
     
     

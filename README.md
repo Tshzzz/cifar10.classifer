@@ -1,4 +1,4 @@
-﻿# CNN Classifer in cifar-10
+﻿# CNN Classifer In Cifar-10
 I try to do some classifer experiment in cifar-10.
 All the network train with the same parameter.
 I want to know in the same condition which CNN is the best.
@@ -31,5 +31,9 @@ Training Detail
 | MobileNet    | XXXXXXXXXXXXXX | X           |
 | MobileNetV2  | XXXXXXXXXXXXXX | X           |
 | ShuffleNet   | XXXXXXXXXXXXXX | X           |
+
+
+## Reference:
+https://github.com/kuangliu/pytorch-cifar
 
 

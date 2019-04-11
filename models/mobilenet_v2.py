@@ -68,12 +68,9 @@ class MobileNet_v2(nn.Module):
 
         self.conv1 = nn.Conv2d(3,32,kernel_size=1,stride=1,padding=0,bias=False)
         self.bn1 = nn.BatchNorm2d(32)
-
         self.bottlen = self.make_layers(32)
-
         self.conv3 = nn.Conv2d(320,1280,kernel_size=1,stride=1,padding=0,bias=False)
 
-        #self.pool = nn.AvgPool2d(7,stride=1)
         self.fc = nn.Sequential(
                 nn.Dropout(0.5),
                 nn.Linear(1280,num_class)

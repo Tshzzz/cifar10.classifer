@@ -39,9 +39,7 @@ class VGG(nn.Module):
                 layers.append(nn.Conv2d(in_channel,self.layers[idx],kernel_size=3,padding=1))
                 layers.append(nn.BatchNorm2d(self.layers[idx]))
                 layers.append(nn.ReLU())
-                
                 in_channel = self.layers[idx]
-                    
         return nn.Sequential(*layers)
             
     
@@ -70,22 +68,18 @@ def test():
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
             count += 1
-    print(count)    
-    #print(model)
-
+    print(count)
     a = VGG16()
     count = 0
     for m in a.modules():
         if isinstance(m, nn.Conv2d):
             count += 1
     print(count)
-    
     y = a(torch.randn(3,3,32,32))
     print(y.size())
     
     
 if __name__ == "__main__":
-
     test()
 
 

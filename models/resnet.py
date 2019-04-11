@@ -97,17 +97,11 @@ class ResNet(nn.Module):
             
             
     def _make_layer(self,block,plane,layer,stride=1):
-
-        
         layers = []
         layers.append(block(self.inplanes,plane,stride))
-        
         self.inplanes = plane*block.expansion
-
         for i in range(1,layer):
-            
             layers.append(block(self.inplanes,plane))
-        
         return nn.Sequential(*layers)
 
     def forward(self, x):

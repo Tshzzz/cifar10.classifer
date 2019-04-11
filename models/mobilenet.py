@@ -33,50 +33,36 @@ class MobileNet(nn.Module):
         super(MobileNet,self).__init__()
         
         layers = []
-        
         layers.append(conv_bw(3,32,3,1))
-        
         layers.append(conv_dw(32,64,1))
-        
         layers.append(conv_dw(64,128,2))
-
         layers.append(conv_dw(128,128,1))
-
         layers.append(conv_dw(128,256,2))
-
         layers.append(conv_dw(256,256,1))
-
         layers.append(conv_dw(256,512,2))
-        
-        
+
         for i in range(5):
             layers.append(conv_dw(512,512,1))
-
         layers.append(conv_dw(512,1024,2))
         layers.append(conv_dw(1024,1024,1))
-        
 
         self.classifer = nn.Sequential(
                 nn.Dropout(0.5),
                 nn.Linear(1024,num_class)
                 )
-                
         self.feature = nn.Sequential(*layers)
         
         
 
     def forward(self,x):
-        
         out = self.feature(x)
         out = out.view(-1,1024)
         out = self.classifer(out)
-
         return out
 
 
 def test():
     a = MobileNet(10)
-    
     y = a(torch.randn(1,3,32,32))
     print(y.size())
     
